@@ -88,10 +88,11 @@ def show_images(dataset, num_samples=20, cols=4):
     """Plots some samples from the dataset"""
     plt.figure(figsize=(15, 15))
     plt.title(f"First {num_samples} images in the dataset")
+    subplot_dim = math.ceil(math.sqrt(num_samples))
     for i, img in enumerate(dataset):
         if i == num_samples:
             break
-        plt.subplot(int(num_samples / cols) + 1, cols, i + 1)
+        plt.subplot(subplot_dim, subplot_dim, i + 1)
         plt.imshow(img)
 
 
@@ -314,17 +315,22 @@ def sample_plot_image():
     plt.figure(figsize=(15, 15))
     plt.axis("off")
     plt.title("Current model de-noising for decreasing time t")
-    num_images = 10
-    stepsize = int(T / num_images)
+    num_images = 9
+    subplot_dim = math.ceil(math.sqrt(num_images))
+    plot_steps = np.floor(np.linspace(0, T, num_images))
 
-    for i in range(0, T)[::-1]:
-        t = torch.full((1,), i, device=device, dtype=torch.long)
+    subplot_idx = 0
+    for time_val in range(0, T)[::-1]:
+        t = torch.full((1,), time_val, device=device, dtype=torch.long)
         img = sample_timestep(img, t)
         # Edit: This is to maintain the natural range of the distribution
         img = torch.clamp(img, -1.0, 1.0)
-        if i % stepsize == 0:
-            plt.subplot(1, num_images, int(i / stepsize) + 1)
+        
+        if time_val in plot_steps:
+            ax = plt.subplot(subplot_dim, subplot_dim, num_images - subplot_idx)
+            ax.set_title(f"t={time_val}")
             show_tensor_image(img.detach().cpu())
+            subplot_idx += 1
     plt.show(block=False)
 
 class StanfordCars(torch.utils.data.Dataset):
@@ -373,12 +379,14 @@ image = next(iter(dataloader))[0]
 plt.figure(figsize=(15, 15))
 plt.axis("off")
 plt.title("Noise process for increasing time t")
-num_images = 10
-stepsize = int(T / num_images)
+num_images = 9
+subplot_dim = math.ceil(math.sqrt(num_images))
+stepsize = T // num_images
 
-for idx in range(0, T, stepsize):
-    t = torch.Tensor([idx]).type(torch.int64)
-    plt.subplot(1, num_images + 1, int(idx / stepsize) + 1)
+for idx, time_val in enumerate(np.floor(np.linspace(0, T-1, num_images))):
+    t = torch.Tensor([time_val]).type(torch.int64)
+    ax = plt.subplot(subplot_dim, subplot_dim, idx + 1)
+    ax.set_title(f"t={time_val}")
     img, noise = forward_diffusion_sample(image, t)
     show_tensor_image(img)
 
@@ -394,7 +402,7 @@ from torch.optim import Adam
 device = "cuda" if torch.cuda.is_available() else "cpu"
 model.to(device)
 optimizer = Adam(model.parameters(), lr=0.001)
-epochs = 100  # Try more!
+epochs = 2  # Try more!
 
 for epoch in range(epochs):
     for step, batch in tqdm(enumerate(dataloader)):
@@ -408,5 +416,8 @@ for epoch in range(epochs):
 
         if epoch % 5 == 0 and step == 0:
             print(f"Epoch {epoch} | step {step:03d} Loss: {loss.item()} ")
-            torch.save(model.state_dict(), "car_model.pth")
             sample_plot_image()
+
+    torch.save(model.state_dict(), "car_model.pth")
+
+plt.show()
