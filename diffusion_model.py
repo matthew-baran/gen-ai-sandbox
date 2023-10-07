@@ -88,6 +88,7 @@ def show_images(dataset, num_samples=20, cols=4):
     """Plots some samples from the dataset"""
     plt.figure(figsize=(15, 15))
     plt.title(f"First {num_samples} images in the dataset")
+    plt.axis("off")
     subplot_dim = math.ceil(math.sqrt(num_samples))
     for i, img in enumerate(dataset):
         if i == num_samples:
@@ -314,10 +315,10 @@ def sample_plot_image():
     img = torch.randn((1, 3, img_size, img_size), device=device)
     plt.figure(figsize=(15, 15))
     plt.axis("off")
-    plt.title("Current model de-noising for decreasing time t")
+    plt.title("Current model de-noising for decreasing time t", y=1.08)
     num_images = 9
     subplot_dim = math.ceil(math.sqrt(num_images))
-    plot_steps = np.floor(np.linspace(0, T, num_images))
+    plot_steps = np.floor(np.linspace(0, T - 1, num_images))
 
     subplot_idx = 0
     for time_val in range(0, T)[::-1]:
@@ -327,7 +328,7 @@ def sample_plot_image():
         img = torch.clamp(img, -1.0, 1.0)
         
         if time_val in plot_steps:
-            ax = plt.subplot(subplot_dim, subplot_dim, num_images - subplot_idx)
+            ax = plt.subplot(subplot_dim, subplot_dim, subplot_idx + 1)
             ax.set_title(f"t={time_val}")
             show_tensor_image(img.detach().cpu())
             subplot_idx += 1
@@ -378,12 +379,12 @@ image = next(iter(dataloader))[0]
 
 plt.figure(figsize=(15, 15))
 plt.axis("off")
-plt.title("Noise process for increasing time t")
+plt.title("Noise process for increasing time t", y=1.08)
 num_images = 9
 subplot_dim = math.ceil(math.sqrt(num_images))
 stepsize = T // num_images
 
-for idx, time_val in enumerate(np.floor(np.linspace(0, T-1, num_images))):
+for idx, time_val in enumerate(np.floor(np.linspace(0, T - 1, num_images))):
     t = torch.Tensor([time_val]).type(torch.int64)
     ax = plt.subplot(subplot_dim, subplot_dim, idx + 1)
     ax.set_title(f"t={time_val}")
