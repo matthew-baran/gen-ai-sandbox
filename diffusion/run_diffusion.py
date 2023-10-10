@@ -71,13 +71,19 @@ For a great introduction to UNets, have a look at this post: https://amaarora.gi
 
 import matplotlib.pyplot as plt
 import torch
+from torch.optim import Adam
 from torch.utils.data import DataLoader
 from tqdm import tqdm
 
-from utils import StanfordCars, show_images, load_transformed_dataset, plot_diffusion, sample_plot_image
+from constants import BATCH_SIZE, T
 from diffusion_model import SimpleUnet, get_loss
-from constants import T, BATCH_SIZE
-
+from utils import (
+    StanfordCars,
+    load_transformed_dataset,
+    plot_diffusion,
+    sample_plot_image,
+    show_images,
+)
 
 data = StanfordCars(root_path="../data/stanford_cars/cars_train/cars_train")
 show_images(data)
@@ -92,8 +98,6 @@ print("Num params: ", sum(p.numel() for p in model.parameters()))
 model
 
 # Training
-from torch.optim import Adam
-
 device = "cuda" if torch.cuda.is_available() else "cpu"
 model.to(device)
 optimizer = Adam(model.parameters(), lr=0.001)
@@ -104,7 +108,7 @@ for epoch in range(epochs):
         optimizer.zero_grad()
 
         t = torch.randint(0, T, (BATCH_SIZE,), device=device).long()
-        
+
         loss = get_loss(model, batch, t, device)
         loss.backward()
         optimizer.step()

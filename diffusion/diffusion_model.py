@@ -1,8 +1,8 @@
 import math
 
 import torch
-from torch import nn
 import torch.nn.functional as F
+from torch import nn
 
 from constants import T
 
@@ -114,7 +114,7 @@ class SimpleUnet(nn.Module):
             x = torch.cat((x, residual_x), dim=1)
             x = up(x, t)
         return self.output(x)
-    
+
 
 @torch.no_grad()
 def sample_timestep(model, x, t):
@@ -142,7 +142,7 @@ def sample_timestep(model, x, t):
     else:
         noise = torch.randn_like(x)
         return model_mean + torch.sqrt(posterior_variance_t) * noise
-    
+
 
 def forward_diffusion_sample(x_0, t, device="cpu"):
     """

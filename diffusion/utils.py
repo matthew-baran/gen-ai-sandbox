@@ -1,13 +1,14 @@
-import matplotlib.pyplot as plt
-import numpy as np
-import torch
-from torchvision import transforms
-from PIL import Image
 import math
 import os
 
-from diffusion_model import sample_timestep, forward_diffusion_sample
+import matplotlib.pyplot as plt
+import numpy as np
+import torch
+from PIL import Image
+from torchvision import transforms
+
 from constants import T
+from diffusion_model import forward_diffusion_sample, sample_timestep
 
 IMG_SIZE = 64
 
@@ -103,6 +104,7 @@ def show_images(dataset, num_samples=20, cols=4):
             break
         plt.subplot(subplot_dim, subplot_dim, i + 1)
         plt.imshow(img)
+
 
 def plot_diffusion(dataloader):
     # Simulate forward diffusion
