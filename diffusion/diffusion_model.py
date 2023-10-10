@@ -4,7 +4,7 @@ import torch
 import torch.nn.functional as F
 from torch import nn
 
-from constants import T
+from config import diffusion_config
 
 
 class Block(nn.Module):
@@ -182,7 +182,7 @@ def get_index_from_list(vals, t, x_shape):
     return out.reshape(batch_size, *((1,) * (len(x_shape) - 1))).to(t.device)
 
 
-betas = linear_beta_schedule(timesteps=T)
+betas = linear_beta_schedule(timesteps=diffusion_config.MAX_TIMESTEP)
 
 # Pre-calculate different terms for closed form
 alphas = 1.0 - betas

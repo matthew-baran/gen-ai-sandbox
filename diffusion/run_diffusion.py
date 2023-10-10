@@ -75,7 +75,7 @@ from torch.optim import Adam
 from torch.utils.data import DataLoader
 from tqdm import tqdm
 
-from constants import BATCH_SIZE, T
+from config import diffusion_config
 from diffusion_model import SimpleUnet, get_loss
 from utils import (
     StanfordCars,
@@ -89,7 +89,7 @@ data = StanfordCars(root_path="../data/stanford_cars/cars_train/cars_train")
 show_images(data)
 
 data = load_transformed_dataset()
-dataloader = DataLoader(data, batch_size=BATCH_SIZE, shuffle=True, drop_last=True)
+dataloader = DataLoader(data, batch_size=diffusion_config.BATCH_SIZE, shuffle=True, drop_last=True)
 
 plot_diffusion(dataloader)
 
@@ -101,13 +101,12 @@ model
 device = "cuda" if torch.cuda.is_available() else "cpu"
 model.to(device)
 optimizer = Adam(model.parameters(), lr=0.001)
-epochs = 10  # Try more!
 
-for epoch in range(epochs):
+for epoch in range(diffusion_config.NUM_EPOCHS):
     for step, batch in tqdm(enumerate(dataloader)):
         optimizer.zero_grad()
 
-        t = torch.randint(0, T, (BATCH_SIZE,), device=device).long()
+        t = torch.randint(0, diffusion_config.MAX_TIMESTEP, (diffusion_config.BATCH_SIZE,), device=device).long()
 
         loss = get_loss(model, batch, t, device)
         loss.backward()

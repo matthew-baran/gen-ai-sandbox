@@ -7,10 +7,8 @@ import torch
 from PIL import Image
 from torchvision import transforms
 
-from constants import T
+from config import diffusion_config
 from diffusion_model import forward_diffusion_sample, sample_timestep
-
-IMG_SIZE = 64
 
 
 class StanfordCars(torch.utils.data.Dataset):
@@ -31,7 +29,7 @@ class StanfordCars(torch.utils.data.Dataset):
 
 def load_transformed_dataset():
     data_transforms = [
-        transforms.Resize((IMG_SIZE, IMG_SIZE)),
+        transforms.Resize((diffusion_config.IMG_SIZE, diffusion_config.IMG_SIZE)),
         transforms.RandomHorizontalFlip(),
         transforms.ToTensor(),  # Scales data into [0,1]
         transforms.Lambda(lambda t: (t * 2) - 1),  # Scale between [-1, 1]
@@ -69,17 +67,17 @@ def show_tensor_image(image):
 @torch.no_grad()
 def sample_plot_image(model, device="cpu"):
     # Sample noise
-    img_size = IMG_SIZE
+    img_size = diffusion_config.IMG_SIZE
     img = torch.randn((1, 3, img_size, img_size), device=device)
     plt.figure(figsize=(15, 15))
     plt.axis("off")
     plt.title("Current model de-noising for decreasing time t", y=1.08)
     num_images = 9
     subplot_dim = math.ceil(math.sqrt(num_images))
-    plot_steps = np.floor(np.linspace(0, T - 1, num_images))
+    plot_steps = np.floor(np.linspace(0, diffusion_config.MAX_TIMESTEP - 1, num_images))
 
     subplot_idx = 0
-    for time_val in range(0, T)[::-1]:
+    for time_val in range(0, diffusion_config.MAX_TIMESTEP)[::-1]:
         t = torch.full((1,), time_val, device=device, dtype=torch.long)
         img = sample_timestep(model, img, t)
         # Edit: This is to maintain the natural range of the distribution
@@ -116,7 +114,7 @@ def plot_diffusion(dataloader):
     num_images = 9
     subplot_dim = math.ceil(math.sqrt(num_images))
 
-    for idx, time_val in enumerate(np.floor(np.linspace(0, T - 1, num_images))):
+    for idx, time_val in enumerate(np.floor(np.linspace(0, diffusion_config.MAX_TIMESTEP - 1, num_images))):
         t = torch.Tensor([time_val]).type(torch.int64)
         ax = plt.subplot(subplot_dim, subplot_dim, idx + 1)
         ax.set_title(f"t={time_val}")
