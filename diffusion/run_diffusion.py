@@ -81,7 +81,7 @@ from utils import (
     StanfordCars,
     load_transformed_dataset,
     plot_diffusion,
-    sample_plot_image,
+    plot_denoising,
     show_images,
 )
 
@@ -114,7 +114,7 @@ for epoch in range(diffusion_config.NUM_EPOCHS):
 
         if epoch % 5 == 0 and step == 0:
             print(f"Epoch {epoch} | step {step:03d} Loss: {loss.item()} ")
-            sample_plot_image(model, device)
+            plot_denoising(model, device)
 
     torch.save(model.state_dict(), "models/car_model.pth")
 

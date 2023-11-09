@@ -65,7 +65,7 @@ def show_tensor_image(image):
 
 
 @torch.no_grad()
-def sample_plot_image(model, device="cpu"):
+def plot_denoising(model, device="cpu"):
     # Sample noise
     img_size = diffusion_config.IMG_SIZE
     img = torch.randn((1, 3, img_size, img_size), device=device)
@@ -91,7 +91,7 @@ def sample_plot_image(model, device="cpu"):
     plt.show(block=False)
 
 
-def show_images(dataset, num_samples=20, cols=4):
+def show_images(dataset, num_samples=20):
     """Plots some samples from the dataset"""
     plt.figure(figsize=(15, 15))
     plt.title(f"First {num_samples} images in the dataset")
